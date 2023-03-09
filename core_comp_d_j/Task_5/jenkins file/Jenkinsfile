@@ -1,0 +1,30 @@
+pipeline {
+	agent {
+		dockerfile{
+			filename "Dockerfile"
+			additionalBuildArgs "--build-arg version=20.10.21"
+			args "-v /tmp:/tmp"
+		}
+	}
+
+	stages {
+        	stage('Cloning stage') {
+        		steps {
+				sh 'git clone http://github.com/madler/zlib.git'
+				sh "pwd"
+				dir("zlib"){
+					sh "pwd"
+				}
+            		}
+        	}
+
+        	stage('Building & Running Image') {
+        		steps {
+				dir("zlib"){
+					sh './configure'
+					sh 'make test'
+				}
+            		}
+        	}
+    	}
+}

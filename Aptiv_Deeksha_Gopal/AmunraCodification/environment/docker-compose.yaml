@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+    jenkins:
+        image: local-testjenkins
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: jenkins
+        ports:
+            - 8080:8080
+            - 50000:50000
+        environment:
+            - TZ=Europe/Berlin
+            - JAVA_OPTS=-Dhudson.model.DownloadService.noSignatureCheck=true -Djenkins.install.runSetupWizard=false -Xmx4096m
+            - CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs/
+        volumes:
+            # plugins.txt mapping
+            - ./resources/plugins.txt:/usr/share/jenkins/ref/plugins.txt
+            # configurations for configuration-as-code plugin
+            - ./resources/jenkins-casc.yaml:/var/jenkins_home/casc_configs/jenkins-casc.yaml
+        restart: always

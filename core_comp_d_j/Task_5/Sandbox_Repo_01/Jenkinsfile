@@ -1,0 +1,36 @@
+pipeline {
+	agent {docker{image 'jfrog.asux.aptiv.com/corecomp_devops-aptiv-00000000-docker-local/studenttest:1.0'}}
+
+	stages {
+        	stage('Cloning stage') {
+        		steps {
+				sh 'git clone http://github.com/madler/zlib.git'
+				sh "pwd"
+				dir("zlib"){
+					sh "pwd"
+				}
+            		}
+        	}
+		
+		stage('jobdsl'){
+			steps{
+				jobDsl(targets:'jobdsl.groovy')
+			}
+		}
+		
+		stage('job_dsl_multibranch'){
+			steps{
+				jobDsl(targets:'job_dsl_multibranch.groovy')
+			}
+		}
+		
+        	stage('Building & Running Image') {
+        		steps {
+				dir("zlib"){
+					sh './configure'
+					sh 'make test'
+				}
+            		}
+        	}
+    	}
+}

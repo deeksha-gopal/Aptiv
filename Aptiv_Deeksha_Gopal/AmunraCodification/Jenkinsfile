@@ -1,0 +1,52 @@
+
+pipeline {
+    agent any
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '60'))
+        disableConcurrentBuilds()
+        timeout(time: 20, unit: 'MINUTES')
+        ansiColor('xterm')
+    }
+    stages {
+        stage("Preparation") {
+            steps {
+                sh """#!/bin/bash
+                    pip install -r requirements.txt
+                """
+            }
+        }
+        stage('Python') {
+            steps {
+                sh """#!/bin/bash
+                    echo Running Python UTs...
+                    export PATH=\$HOME/.local/bin:\$PATH
+                    pytest --junitxml=pytestresults.xml --cov-report=xml:pytestcoverage.xml
+                """
+            }
+        }
+        stage("C++") {
+            steps {
+                dir("src") {
+                    sh """#!/bin/bash
+                        echo "<ADD C++ BUILDSTEPS HERE>"
+                        exit 1
+                    """
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo "Build successful"
+        }
+        failure {
+            echo "Build failed"
+        }
+        fixed {
+            echo "Build fixed"
+        }
+        cleanup {
+            deleteDir()
+        }
+    }
+}
